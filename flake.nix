@@ -37,6 +37,8 @@
           (python3.withPackages (
             ps: with ps; [
               torchWithCuda
+                            matplotlib
+                            pandas
               # Add other python packages here
             ]
           ))
