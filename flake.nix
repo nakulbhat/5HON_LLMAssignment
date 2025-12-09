@@ -39,6 +39,7 @@
               torchWithCuda
                             matplotlib
                             pandas
+                            tqdm
               # Add other python packages here
             ]
           ))
