@@ -1,31 +1,47 @@
-% arara: lualatex
+% arara: lualatex: { shell : yes }
+% arara: biber
+% arara: lualatex: { shell : yes }
+% arara: lualatex: { shell : yes }
 
-\documentclass[11pt]{article}
+\documentclass[11pt, draft]{article}
 \usepackage[a4paper]{geometry}
 \usepackage{enumitem}
 \usepackage{ragged2e}
 
-\title{Machine Translation and Implementation of Transformers }
-\author{
-    Padavinangady Nakul Bhat
-    \thanks{
-        Reg. No. 230962212, School of Computer Engineering, Manipal Institute of Technology
-    }
-}
-\date{\itshape Submitted in fulfilment of the credit requirements\\for the BTech Honours Program}
+\usepackage{xcolor}
+\usepackage{minted}
+\usemintedstyle{colorful}
+\definecolor{bg}{rgb}{.9, .9, .9}
+\setminted{bgcolor=bg, breaklines, linenos, autogobble}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage[all]{hypcap}
+
+\usepackage{cleveref}
+\crefname{listing}{listing}{listings}
+\Crefname{listing}{Listing}{Listings}
+
+
+\usepackage{qrcode}
+\usepackage{wrapfig2}
+\usepackage[
+type={CC},
+modifier={by-sa},
+version={4.0},
+imagewidth=7em
+]{doclicense}
+
+\usepackage{biblatex}
+\addbibresource{references.bib}
+
 \begin{document}
+
 \input{sections/titlepage}
-\begin{abstract}
-    This report covers the topics presented in
-    the ``Introductions to Large Language Models''
-    course taught by Tanmoy Chakraborty and
-    Soumen Chakrabarti, available on NPTEL.
-    As a graded assignment, the report follows a
-    set of seven questions, and accompanies a code
-    base available in the PLACEHOLDER directory.
-    Each question will be quoted in full, followed
-    by explanations and code listings where appropriate.
-\end{abstract}
+\input{sections/second_page.tex}
+\clearpage
 
 \input{sections/seq2seq}
+
+\printbibliography
+
 \end{document}
