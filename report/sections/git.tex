@@ -1,0 +1,15 @@
+\section{Git Commit Log}\label{sec:Git Commit Log} % (fold)
+
+% section Git Commit Log (end)
+\footnotesize
+\begin{luacode*}
+    local fdHandle = io.popen("git log --pretty=format:'%h %ad %an %s' --date=short", "r")
+    local files = fdHandle:read("*a")
+    fdHandle:close()
+    tex.print("\\noindent")
+    for line in files:gmatch("[^\r\n]+") do
+        tex.print("\\verb+" .. line .."+")
+        tex.print("\\\\")
+    end
+\end{luacode*}
+
