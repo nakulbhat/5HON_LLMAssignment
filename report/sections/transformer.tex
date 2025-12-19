@@ -1,0 +1,82 @@
+\section{Transformers and Multi-Head Attention}
+\textit{Explain the architecture of a Transformer model and implement a minimal
+Transformer encoder using PyTorch. Highlight the role of multi-head attention and
+position-wise feed-forward networks. Provide code snippets to support your
+answer.}
+
+The Transformer architecture was introduced to address the
+limitations of recurrent models in sequence modeling tasks,
+most notably their sequential computation and difficulty
+in capturing long-range dependencies.
+Unlike RNN-based models, Transformers rely entirely on
+attention mechanisms and dispense with recurrence and
+convolution altogether~\cite{vaswaniAttentionAllYou2017}.
+This allows for full parallelization during training and
+more efficient modeling of global context.
+
+A Transformer is composed of stacked encoder and decoder
+blocks.
+In this section, we focus on a minimal Transformer encoder,
+which is sufficient to illustrate the core architectural
+components.
+Each encoder block consists of two main sub-layers:
+a multi-head self-attention mechanism and a position-wise
+feed-forward network.
+Both sub-layers are wrapped with residual connections
+followed by layer normalization.
+
+Self-attention enables the model to compute contextualized
+representations of tokens by attending to all other tokens
+in the input sequence.
+Given an input sequence represented as a matrix
+$X \in \mathbb{R}^{T \times d_{\text{model}}}$, self-attention
+projects the input into queries, keys, and values using
+learned linear transformations
+\begin{equation}
+Q = XW_Q, \quad K = XW_K, \quad V = XW_V.
+\end{equation}
+The attention output is then computed using scaled dot-product
+attention
+\begin{equation}
+\text{Attention}(Q, K, V) =
+\text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V,
+\end{equation}
+where $d_k$ is the dimensionality of the key vectors.
+The scaling factor stabilizes gradients for large values
+of $d_k$.
+
+Multi-head attention extends this idea by running several
+attention operations in parallel.
+Each head attends to the input sequence using different
+learned projections, allowing the model to capture
+multiple types of relationships simultaneously.
+Formally, the output of multi-head attention is given by
+\begin{equation}
+\text{MultiHead}(Q, K, V) =
+\text{Concat}(\text{head}_1, \dots, \text{head}_h)W_O,
+\end{equation}
+where each head is an independent attention computation.
+This mechanism significantly increases the expressive
+power of the model without a large computational overhead.
+
+Following the attention sub-layer, each encoder block
+contains a position-wise feed-forward network.
+This network is applied independently and identically
+to each position in the sequence, and consists of two
+linear transformations with a non-linear activation
+function in between
+\begin{equation}
+\text{FFN}(x) = \max(0, xW_1 + b_1)W_2 + b_2.
+\end{equation}
+The feed-forward network increases the representational
+capacity of the model and introduces non-linearity
+after the attention operation.
+
+Since the Transformer contains no recurrence or convolution,
+positional information must be injected explicitly.
+This is achieved using positional encodings, which are added
+to the input embeddings to provide the model with information
+about token order.
+A minimal Transformer encoder implemented in PyTorch is
+shown in \Cref{lst:transformer}.
+\input{listings/transformer.tex}
