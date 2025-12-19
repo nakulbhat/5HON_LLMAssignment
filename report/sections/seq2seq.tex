@@ -1,13 +1,115 @@
-\section{Sequence-to-Sequence Model}\label{sec:Sequence-to-Sequence Model} % (fold)
-\begin{enumerate}[label=1.(\alph*)]
-    \item Implement a Transformer-based sequence-to-sequence 
-        model in PyTorch for machine translation (English → French). 
-    \item Explain the encoder-decoder structure, 
-        attention mechanism, and training process. 
-    \item Provide code snippets and discuss 
-        evaluation metrics such as BLEU score.
-\end{enumerate}
+\section[Sequence-to-Sequence Model]{Sequence-to-Sequence Machine Translation Model}\label{sec:Sequence-to-Sequence Model} % (fold)
+\textit{Implement a Transformer-based sequence-to-sequence model in PyTorch for 
+machine translation (English → French). Explain the encoder-decoder structure,
+attention mechanism, and training process. Provide code snippets and discuss 
+evaluation metrics such as BLEU score}
+
+The full working implementation is available in \mintinline{text}{code/seq2seq.py}. 
+Only important parts of the code are discussed below to
+provide an illustration of the working.
+The code largely follows the flow outlined in the PyTorch 
+Documentation~\cite{robertsonNLPScratchTranslation}.
+The dataset was downloaded from Tatoeba~\cite{TatoebaCollectionSentencesa},
+and preprocessed before usage. 
+Preprocessing included extracting pairs of English sentences with French
+translations, and converting Unicode strings into ASCII strings. 
+
+First, we define a class to help build a vocabulary and 
+get one-hot encoded vectors.
+The \mintinline{py}{class Lang} is responsible for
+the ingestion of sentences and the storage of dictionaries
+holding the indices of words present in the language.
+A simple tokenizer is used, and tokens are split by whitespaces.
+
+The encoder-decoder architecture is one of three possible
+transformer architectures~\cite{aitkenUnderstandingHowEncoderDecoder2021}. 
+It is especially suited for summarization and machine translation
+as there is no restriction on both the input and output length.
+It uses the encoder part to calculate a dense context vector that
+effectively captures all the data from the input vector. 
+The encoder we have used is an RNN with a Gated Recurrent Unit
+that allows it to have better context and memory.
+The encoder code is given in \Cref{lst:seq2seq_encoder}
+\input{listings/seq2seq_encoder.tex}
 
 
+The decoder part of the transformer consists of another RNN-GRU,
+and uses attention along with already generated tokens to
+get a probability distribution of possible continuations.
+The decoder can work in two ways, by using previous tokens as mentioned earlier,
+or by ``teacher-forcing'' where we can force the next step of attention to use
+tokens provided by a ground truth. 
+Teacher-forcing allows a model to train faster and make less mistakes by not
+allowing mistakes to propagate far into the model.
+Code for the decoder can be found in \Cref{lst:seq2seq_decoder}
+\input{listings/seq2seq_decoder.tex}
 
-% section Sequence-to-Sequence Model (end)
+Attention is a mechanism to control the tokens 
+that a model considers relevant and important. 
+Attention allows a decoder access to all the states
+of the encoder, and selectively picks the most important ones.
+
+For every generated token, attention calculates an alignment
+score, called the \emph{attention weight}.
+Instead of compressing all information from the encoder into
+a single fixed-length vector, attention computes a weighted
+combination of all encoder hidden states.
+This allows the decoder to dynamically focus on different
+parts of the input sequence at each decoding step.
+
+In this work, we specifically use \emph{Bahdanau attention}~\cite{bahdanauEndtoendAttentionbasedLarge2016},
+which is an additive attention mechanism.
+Given the encoder hidden states $h_i$ and the current decoder
+hidden state $s_t$, an alignment score is computed as
+\begin{equation}
+e_{t,i} = v_a^\top \tanh(W_a s_t + U_a h_i),
+\end{equation}
+where $W_a$, $U_a$, and $v_a$ are learnable parameters.
+These scores are normalized using a softmax function to obtain
+attention weights
+\begin{equation}
+\alpha_{t,i} = \frac{\exp(e_{t,i})}{\sum_j \exp(e_{t,j})}.
+\end{equation}
+The context vector $c_t$ is then computed as a weighted sum
+of encoder hidden states
+\begin{equation}
+c_t = \sum_i \alpha_{t,i} h_i.
+\end{equation}
+This context vector is concatenated with the decoder hidden
+state and passed to the output layer to generate the next token.
+The attention implementation used in this project is shown in
+\Cref{lst:seq2seq_attention}.
+\input{listings/seq2seq_attention.tex}
+
+The training process consists of minimizing the negative
+log-likelihood loss between the predicted output sequence
+and the ground truth translation.
+Given a target sentence $y = (y_1, \dots, y_T)$, the loss is defined as
+\begin{equation}
+\mathcal{L} = -\sum_{t=1}^{T} \log p(y_t \mid y_{<t}, x),
+\end{equation}
+where $x$ is the input English sentence.
+The model is trained using the Adam optimizer, and gradients
+are computed using backpropagation through time.
+Teacher-forcing is applied with a fixed probability, allowing
+the decoder to alternate between using its own predictions
+and ground-truth tokens during training.
+This improves convergence speed and stability.
+
+During evaluation, the model is switched to inference mode
+and generates translations autoregressively without
+teacher-forcing.
+To quantitatively assess translation quality, we use the
+BLEU (Bilingual Evaluation Understudy) score, which measures
+the overlap of $n$-grams between the generated translation
+and a reference translation.
+BLEU is defined as
+\begin{equation}
+\text{BLEU} = \text{BP} \cdot \exp\left( \sum_{n=1}^{N} w_n \log p_n \right),
+\end{equation}
+where $p_n$ denotes the precision of $n$-grams, $w_n$ are
+uniform weights, and BP is a brevity penalty that discourages
+overly short translations.
+BLEU provides a standardized and widely-used metric for
+comparing machine translation systems, and is well-suited
+for evaluating the English-to-French task considered here.

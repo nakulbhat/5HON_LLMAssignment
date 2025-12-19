@@ -1,0 +1,24 @@
+\begin{listing}
+    \begin{minted}{Python}
+class TransformerEncoderLayer(nn.Module):
+    def __init__(self, d_model, num_heads, d_ff, dropout=0.1):
+        super().__init__()
+        self.self_attn = nn.MultiheadAttention(d_model, num_heads, dropout=dropout)
+        self.ffn = nn.Sequential(
+            nn.Linear(d_model, d_ff),
+            nn.ReLU(),
+            nn.Linear(d_ff, d_model)
+        )
+        self.norm1 = nn.LayerNorm(d_model)
+        self.norm2 = nn.LayerNorm(d_model)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        # x: (seq_len, batch_size, d_model)
+        attn_output, _ = self.self_attn(x, x, x)
+        x = self.norm1(x + self.dropout(attn_output))
+        ffn_output = self.ffn(x)
+        x = self.norm2(x + self.dropout(ffn_output))
+        return x
+    \end{minted}
+\end{listing}

@@ -3,10 +3,11 @@
 % arara: lualatex: { shell : yes }
 % arara: lualatex: { shell : yes }
 
-\documentclass[11pt, draft]{article}
+\documentclass[11pt]{article}
 \usepackage[a4paper]{geometry}
 \usepackage{enumitem}
 \usepackage{ragged2e}
+\usepackage{amsmath, amssymb, amsfonts}
 
 \usepackage{xcolor}
 \usepackage{minted}
@@ -40,7 +41,7 @@ imagewidth=7em
 \input{sections/second_page.tex}
 \clearpage
 
-\input{sections/seq2seq}
+\input{sections/seq2seq.tex}
 \input{sections/git.tex}
 
 \printbibliography
