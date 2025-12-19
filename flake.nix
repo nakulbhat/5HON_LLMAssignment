@@ -40,6 +40,7 @@
                             matplotlib
                             pandas
                             tqdm
+                            nltk
               # Add other python packages here
             ]
           ))
