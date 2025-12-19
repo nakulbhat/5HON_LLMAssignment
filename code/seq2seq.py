@@ -16,7 +16,7 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 SOS_TOKEN = 0
 EOS_TOKEN = 1
 MAX_STEPS = 10
-RANDOM_TRAINING_FRACTION = 50
+RANDOM_TRAINING_FRACTION = 75
 
 class Lang:
     def __init__(self, name) -> None:
@@ -107,39 +107,6 @@ class Encoder(nn.Module):
     def forward(self, input):
         embedded = self.dropout(self.embedding(input))
         output, hidden = self.gru(embedded)
-        return output, hidden
-
-class Decoder(nn.Module):
-    def __init__(self, hidden_size, output_size):
-        super(Decoder, self).__init__()
-        self.embedding = nn.Embedding(output_size, hidden_size)
-        self.gru = nn.GRU(hidden_size, hidden_size, batch_first=True)
-        self.out = nn.Linear(hidden_size, output_size)
-
-    def forward(self, encoder_outputs, encoder_hidden, target_tensor = None):
-        batch_size = encoder_outputs.size(0)
-        decoder_input = torch.empty(batch_size, 1, dtype=torch.long, device=DEVICE).fill_(SOS_TOKEN)
-        decoder_hidden = encoder_hidden
-        decoder_outputs = []
-
-        for i in range(MAX_STEPS):
-            decoder_output, decoder_hidden = self.forward(decoder_input, decoder_hidden)
-            decoder_outputs.append(decoder_output)
-
-            if target_tensor is not None: # apply teacher forcing if target is available
-                decoder_input = target_tensor[:, i].unsqueeze(1)
-            else:
-                _, topi = decoder_output.topk(1)
-                decoder_input  = topi.squeeze(-1).detach()
-
-        decoder_outputs = torch.cat(decoder_outputs, dim = 1)
-        decoder_outputs = torch.nn.functional.log.softmax(decoder_outputs, dim=1)
-        return decoder_outputs, decoder_hidden, None 
-
-    def forward_step(self, input, hidden):
-        output = self.embedding(input)
-        output = torch.nn.functional.relu(output)
-        output, hidden = self.gru(output, hidden)
         return output, hidden
 
 class BahdanauAttention(nn.Module):
@@ -360,6 +327,25 @@ def evaluateRandomly(encoder, decoder, n=10):
         print('<', output_sentence)
         print('')
 
+from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
+
+smooth = SmoothingFunction().method1
+
+def compute_bleu(encoder, decoder, pairs, input_lang, output_lang):
+    scores = []
+    for src, tgt in pairs:
+        pred_words, _ = evaluate(encoder, decoder, src, input_lang, output_lang)
+        
+        # remove <EOS>
+        pred = [w for w in pred_words if w != '<EOS>']
+        ref = tgt.split()
+
+        bleu = sentence_bleu([ref], pred, smoothing_function=smooth)
+        scores.append(bleu)
+
+    return sum(scores) / len(scores)
+
+
 hidden_size = 128
 batch_size = 32
 
@@ -372,4 +358,6 @@ train(train_dataloader, encoder, decoder, 80, print_every=5, plot_every=5)
 
 encoder.eval()
 decoder.eval()
+bleu_score = compute_bleu(encoder, decoder, pairs, input_lang, output_lang)
+print("BLEU:", bleu_score)
 evaluateRandomly(encoder, decoder)
