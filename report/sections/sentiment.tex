@@ -1,0 +1,77 @@
+\section{Sentiment Analysis}
+\textit{Design and implement a PyTorch pipeline to train a Transformer model for a text
+classification task (e.g., sentiment analysis). Include dataset preprocessing, model
+definition, training loop, and evaluation. Discuss challenges such as overfitting and
+computational cost.}
+
+Sentiment analysis is a supervised text classification task
+in which the goal is to assign a discrete sentiment label,
+such as positive or negative, to a given input sentence.
+Transformer-based models are particularly well-suited for
+this task, as self-attention enables the model to capture
+contextual dependencies across an entire sequence.
+In this section, we design and implement a PyTorch pipeline
+for training a Transformer encoder on a sentiment
+classification dataset, following the implementation
+outlined in~\cite{HowUsePyTorch}.
+
+The pipeline begins with dataset preprocessing.
+Raw text sentences are first tokenized using a simple
+whitespace-based tokenizer, and a vocabulary is constructed
+from the training corpus.
+Each token is mapped to a unique index, allowing sentences
+to be converted into sequences of integers.
+Since Transformer models operate on fixed-size batches,
+all sequences are padded to a common length.
+A corresponding padding mask is created to ensure that
+padded tokens do not contribute to the attention scores
+or pooled representations during training.
+
+The model architecture consists of an embedding layer
+followed by positional encoding and a Transformer encoder.
+The embedding layer maps token indices to dense vectors,
+while positional encoding injects word-order information
+that is otherwise absent from the attention mechanism.
+These embeddings are then passed through multiple layers
+of a Transformer encoder with multi-head self-attention,
+allowing the model to learn contextualized representations
+of each token in the input sequence.
+
+To obtain a fixed-size representation suitable for
+classification, token-level embeddings are aggregated
+using mask-aware mean pooling.
+Specifically, embeddings corresponding to padded positions
+are excluded from the average, ensuring that sequence length
+variation does not bias the representation.
+The pooled sentence representation is then passed through
+a linear classifier, which outputs logits corresponding
+to the sentiment classes.
+
+The model is trained using the cross-entropy loss function,
+which is appropriate for multi-class classification tasks.
+Optimization is performed using the AdamW optimizer, which
+combines adaptive learning rates with decoupled weight
+decay to improve generalization.
+The training loop iterates over mini-batches of data,
+computes forward passes through the model, backpropagates
+the loss, and updates the model parameters.
+Performance is evaluated periodically on a validation set
+to monitor convergence and detect overfitting.
+
+Several practical challenges arise when training Transformer
+models for sentiment analysis.
+Overfitting is a common issue, particularly when training
+on small or moderately sized datasets.
+This is mitigated through the use of dropout within the
+Transformer layers and weight decay in the optimizer.
+Another important consideration is computational cost.
+Self-attention has quadratic complexity with respect to
+sequence length, which can lead to increased memory usage
+and slower training for long inputs.
+As a result, careful selection of maximum sequence length
+and batch size is necessary to balance performance and
+efficiency.
+
+The full implementation of this sentiment analysis pipeline,
+including the data preprocessing
+is provided in \mintinline{text}{code/sentiment_analysis.py}.
