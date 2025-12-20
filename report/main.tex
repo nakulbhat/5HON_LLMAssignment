@@ -3,17 +3,17 @@
 % arara: lualatex: { shell : yes }
 % arara: lualatex: { shell : yes }
 
-\documentclass[11pt]{article}
+\documentclass[draft, 11pt]{article}
 \usepackage[a4paper]{geometry}
 \usepackage{enumitem}
 \usepackage{ragged2e}
+\usepackage{textcomp}
 \usepackage{amsmath, amssymb, amsfonts}
 
 \usepackage{xcolor}
 \usepackage{minted}
-\usemintedstyle{trac}
-\definecolor{bg}{rgb}{.9, .9, .9}
-\setminted{breaklines, linenos, autogobble}
+\definecolor{bg}{rgb}{.93, .93, .93}
+\setminted{bgcolor=bg, breaklines, linenos, autogobble}
 \usepackage{hyperref}
 \usepackage{caption}
 \usepackage[all]{hypcap}
@@ -27,7 +27,7 @@
 \usepackage{wrapfig2}
 \usepackage[
 type={CC},
-modifier={by-sa},
+modifier={by},
 version={4.0},
 imagewidth=7em
 ]{doclicense}
@@ -35,9 +35,20 @@ imagewidth=7em
 \usepackage{biblatex}
 \addbibresource{references.bib}
 
+\usepackage{stackengine,graphicx}
+\newcommand\No[1][.13ex]{%
+  \setbox0=\hbox{\scalebox{.7}{o}}%
+  \setbox2=\hbox{N}%
+  N\kern-.05em\stackengine{\dimexpr\ht0-\ht2+#1}{\belowbaseline[-\ht2]{\copy0}}%
+    {\rule[-.13ex]{.7\wd0}{.13ex}}%
+    {U}{c}{F}{F}{L}
+}
+\usepackage{mathtools}
+\mathtoolsset{showonlyrefs}
 \begin{document}
 
 \input{sections/titlepage}
+\thispagestyle{empty}
 \input{sections/second_page.tex}
 \clearpage
 

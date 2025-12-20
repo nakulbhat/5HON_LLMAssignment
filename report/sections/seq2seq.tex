@@ -22,8 +22,8 @@ holding the indices of words present in the language.
 A simple tokenizer is used, and tokens are split by whitespaces.
 
 The encoder-decoder architecture is one of three possible
-transformer architectures~\cite{aitkenUnderstandingHowEncoderDecoder2021}. 
-It is especially suited for summarization and machine translation
+transformer architectures~\cite{aitkenUnderstandingHowEncoderDecoder2021}
+and is especially suited for summarization and machine translation
 as there is no restriction on both the input and output length.
 It uses the encoder part to calculate a dense context vector that
 effectively captures all the data from the input vector. 
@@ -41,8 +41,8 @@ or by ``teacher-forcing'' where we can force the next step of attention to use
 tokens provided by a ground truth. 
 Teacher-forcing allows a model to train faster and make less mistakes by not
 allowing mistakes to propagate far into the model.
-Code for the decoder can be found in \Cref{lst:seq2seq_decoder}
-\input{listings/seq2seq_decoder.tex}.
+Code for the decoder can be found in \Cref{lst:seq2seq_decoder}.
+\input{listings/seq2seq_decoder.tex}
 
 Attention is a mechanism to control the tokens 
 that a model considers relevant and important. 
