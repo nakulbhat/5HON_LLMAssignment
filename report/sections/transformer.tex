@@ -24,40 +24,9 @@ a multi-head self-attention mechanism and a position-wise
 feed-forward network.
 Both sub-layers are wrapped with residual connections
 followed by layer normalization.
-
-Self-attention enables the model to compute contextualized
-representations of tokens by attending to all other tokens
-in the input sequence.
-Given an input sequence represented as a matrix
-$X \in \mathbb{R}^{T \times d_{\text{model}}}$, self-attention
-projects the input into queries, keys, and values using
-learned linear transformations
-\begin{equation}
-Q = XW_Q, \quad K = XW_K, \quad V = XW_V.
-\end{equation}
-The attention output is then computed using scaled dot-product
-attention
-\begin{equation}
-\text{Attention}(Q, K, V) =
-\text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V,
-\end{equation}
-where $d_k$ is the dimensionality of the key vectors.
-The scaling factor stabilizes gradients for large values
-of $d_k$.
-
-Multi-head attention extends this idea by running several
-attention operations in parallel.
-Each head attends to the input sequence using different
-learned projections, allowing the model to capture
-multiple types of relationships simultaneously.
-Formally, the output of multi-head attention is given by
-\begin{equation}
-\text{MultiHead}(Q, K, V) =
-\text{Concat}(\text{head}_1, \dots, \text{head}_h)W_O,
-\end{equation}
-where each head is an independent attention computation.
-This mechanism significantly increases the expressive
-power of the model without a large computational overhead.
+Details of the self-attention and multi-head attention
+mechanisms are discussed in more depth in
+\Cref{sec:multi_self_attention}.
 
 Following the attention sub-layer, each encoder block
 contains a position-wise feed-forward network.

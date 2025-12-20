@@ -1,0 +1,71 @@
+\section{Multi-Head Self-Attention}\label{sec:multi_self_attention}
+Multi-head self-attention is the central component of the
+Transformer architecture and is responsible for modeling
+dependencies between tokens within a sequence.
+Unlike recurrent models, self-attention allows every token
+to directly attend to all other tokens in the sequence,
+enabling efficient capture of both short-range and long-range
+relationships.
+This mechanism forms the basis of the Transformer model
+introduced in~\cite{vaswaniAttentionAllYou2017}.
+
+Self-attention operates by projecting an input sequence into
+three distinct representations: queries, keys, and values.
+Given an input matrix
+$X \in \mathbb{R}^{T \times d_{\text{model}}}$, these projections
+are computed using learned weight matrices
+\begin{equation}
+Q = XW_Q, \quad K = XW_K, \quad V = XW_V,
+\end{equation}
+where $W_Q$, $W_K$, and $W_V$ are trainable parameters.
+The attention mechanism then computes pairwise similarity
+scores between queries and keys to determine how much
+each token should attend to every other token.
+
+The core operation is known as \emph{scaled dot-product
+attention}, which is defined as
+\begin{equation}
+\text{Attention}(Q, K, V) =
+\text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V,
+\end{equation}
+where $d_k$ is the dimensionality of the key vectors.
+The scaling factor $\sqrt{d_k}$ prevents the dot products
+from growing too large, which stabilizes training by
+keeping gradients well-behaved.
+The softmax operation ensures that the attention weights
+form a valid probability distribution.
+
+While a single attention operation is powerful, using
+multiple attention heads significantly improves the
+expressiveness of the model.
+Multi-head attention splits the input representations
+into $h$ smaller subspaces and performs attention
+independently in each subspace.
+Each head attends to the sequence using different learned
+projections, allowing the model to capture diverse
+relationships such as syntactic structure, semantic
+similarity, or positional alignment.
+
+Formally, for $h$ attention heads, the multi-head attention
+operation is defined as
+\begin{equation}
+\text{MultiHead}(Q, K, V) =
+\text{Concat}(\text{head}_1, \dots, \text{head}_h)W_O,
+\end{equation}
+where each head is computed as
+\begin{equation}
+\text{head}_i = \text{Attention}(Q_i, K_i, V_i),
+\end{equation}
+and $W_O$ is a learned output projection matrix.
+By concatenating the outputs of multiple heads, the model
+combines information from different representation
+subspaces into a single unified embedding.
+
+A PyTorch implementation of scaled dot-product attention
+and its extension to multi-head self-attention is shown in
+\Cref{lst:multihead_self_attention}.
+The code illustrates how queries, keys, and values are
+reshaped to support multiple heads, how attention is
+computed in parallel, and how the outputs are concatenated
+and projected back to the original embedding dimension.
+\input{listings/multi_self_attention}

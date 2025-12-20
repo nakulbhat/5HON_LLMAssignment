@@ -1,0 +1,37 @@
+\begin{listing}
+    \begin{minted}{Python}
+class MultiHeadSelfAttention(nn.Module):
+    def __init__(self, d_model, num_heads):
+        super().__init__()
+        assert d_model % num_heads == 0
+
+        self.num_heads = num_heads
+        self.d_k = d_model // num_heads
+
+        self.W_q = nn.Linear(d_model, d_model)
+        self.W_k = nn.Linear(d_model, d_model)
+        self.W_v = nn.Linear(d_model, d_model)
+        self.W_o = nn.Linear(d_model, d_model)
+
+    def scaled_dot_product_attention(self, Q, K, V):
+        # Q, K, V: (batch, heads, seq_len, d_k)
+        scores = torch.matmul(Q, K.transpose(-2, -1)) / (self.d_k ** 0.5)
+        weights = torch.softmax(scores, dim=-1)
+        return torch.matmul(weights, V)
+
+    def forward(self, x):
+        # x: (batch, seq_len, d_model)
+        B, T, _ = x.size()
+
+        Q = self.W_q(x).view(B, T, self.num_heads, self.d_k).transpose(1, 2)
+        K = self.W_k(x).view(B, T, self.num_heads, self.d_k).transpose(1, 2)
+        V = self.W_v(x).view(B, T, self.num_heads, self.d_k).transpose(1, 2)
+
+        attn = self.scaled_dot_product_attention(Q, K, V)
+
+        attn = attn.transpose(1, 2).contiguous().view(B, T, -1)
+        return self.W_o(attn)
+    \end{minted}
+    \caption{Minimal Implementation of Multi-Head Self-Attention}
+    \label{lst:multihead_self_attention}
+\end{listing}
