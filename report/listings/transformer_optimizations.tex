@@ -1,0 +1,21 @@
+\begin{listing}
+    \begin{minted}{Python}
+scaler = torch.cuda.amp.GradScaler()
+
+for src, labels, mask in dataloader:
+    optimizer.zero_grad()
+
+    with torch.cuda.amp.autocast():
+        logits = model(src, mask)
+        loss = criterion(logits, labels)
+
+    scaler.scale(loss).backward()
+
+    torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+
+    scaler.step(optimizer)
+    scaler.update()
+    \end{minted}
+    \caption{Optimizing Transformer Training with Gradient Clipping and Mixed Precision}
+    \label{lst:transformer_optimizations}
+\end{listing}
