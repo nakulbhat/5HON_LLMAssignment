@@ -2,7 +2,7 @@
 \textit{Implement a Transformer-based sequence-to-sequence model in PyTorch for 
 machine translation (English → French). Explain the encoder-decoder structure,
 attention mechanism, and training process. Provide code snippets and discuss 
-evaluation metrics such as BLEU score}
+evaluation metrics such as BLEU score.}
 
 The full working implementation is available in \mintinline{text}{code/seq2seq.py}. 
 Only important parts of the code are discussed below to
@@ -30,7 +30,7 @@ effectively captures all the data from the input vector.
 The encoder we have used is an RNN with a Gated Recurrent Unit
 that allows it to have better context and memory.
 The encoder code is given in \Cref{lst:seq2seq_encoder}
-\input{listings/seq2seq_encoder.tex}
+\input{listings/seq2seq_encoder.tex}.
 
 
 The decoder part of the transformer consists of another RNN-GRU,
@@ -42,7 +42,7 @@ tokens provided by a ground truth.
 Teacher-forcing allows a model to train faster and make less mistakes by not
 allowing mistakes to propagate far into the model.
 Code for the decoder can be found in \Cref{lst:seq2seq_decoder}
-\input{listings/seq2seq_decoder.tex}
+\input{listings/seq2seq_decoder.tex}.
 
 Attention is a mechanism to control the tokens 
 that a model considers relevant and important. 
