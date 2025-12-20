@@ -1,0 +1,77 @@
+\section{Sinusoidal Positional Encoding}\label{sec:sinusoidal_positional_encoding} 
+\textit{Discuss the importance of positional encoding in Transformers. Implement
+sinusoidal positional encoding in PyTorch and demonstrate how it integrates with
+input embeddings. Explain why positional information is critical for sequence
+modeling.}
+
+Transformers process input sequences in parallel and do not
+contain any inherent notion of token order.
+As a result, positional information must be explicitly
+provided to the model in order to preserve the structure
+of sequential data.
+Without positional encoding, a Transformer would treat
+the input as a bag of tokens, making it incapable of
+distinguishing between different permutations of the same
+sequence.
+Positional encoding therefore plays a critical role in
+sequence modeling tasks such as machine translation,
+language modeling, and text summarization.
+
+The original Transformer architecture introduces
+\emph{sinusoidal positional encodings}~\cite{vaswaniAttentionAllYou2017},
+which inject position-dependent signals into the input
+embeddings using deterministic functions.
+These encodings are added directly to the word embeddings,
+allowing the model to leverage both semantic and positional
+information simultaneously.
+Since the positional encodings have the same dimensionality
+as the embeddings, this integration does not increase
+the model complexity.
+
+For a given position $pos$ and embedding dimension $i$,
+the sinusoidal positional encoding is defined as
+\begin{equation}
+\text{PE}(pos, 2i) = \sin\left(\frac{pos}{10000^{2i / d_{\text{model}}}}\right),
+\end{equation}
+\begin{equation}
+\text{PE}(pos, 2i + 1) = \cos\left(\frac{pos}{10000^{2i / d_{\text{model}}}}\right),
+\end{equation}
+where $d_{\text{model}}$ denotes the embedding dimension.
+Sine functions are used for even indices and cosine
+functions for odd indices, resulting in a unique positional
+encoding for each position.
+This formulation ensures that positions that are close in
+the sequence have similar encodings, while still allowing
+the model to distinguish distant positions.
+
+An important property of sinusoidal positional encodings
+is that they allow the model to generalize to sequence
+lengths longer than those seen during training.
+Since the encodings are generated using fixed mathematical
+functions rather than learned parameters, they can be
+computed for arbitrary sequence lengths without retraining.
+Additionally, relative positions can be expressed as linear
+functions of these encodings, which is beneficial for
+attention-based models.
+
+In practice, positional encodings are added element-wise
+to the input embeddings before being passed to the
+Transformer encoder.
+If $E \in \mathbb{R}^{T \times d_{\text{model}}}$ denotes
+the token embeddings and $P \in \mathbb{R}^{T \times d_{\text{model}}}$
+the positional encodings, the combined input is given by
+\begin{equation}
+X = E + P.
+\end{equation}
+This simple operation allows every attention layer in
+the network to access positional information implicitly.
+
+A PyTorch implementation of sinusoidal positional encoding
+is shown in \Cref{lst:positional_encoding}.
+The code constructs a positional encoding matrix once and
+registers it as a buffer, ensuring that it is not treated
+as a learnable parameter.
+This positional encoding is then added to the input
+embeddings at each forward pass, providing
+positional information into the Transformer pipeline.
+\input{listings/sinpoe}
